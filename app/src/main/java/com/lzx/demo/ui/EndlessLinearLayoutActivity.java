@@ -22,6 +22,10 @@ import com.github.jdsjlzx.interfaces.OnRefreshListener;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
 import com.github.jdsjlzx.recyclerview.ProgressStyle;
+import com.github.jdsjlzx.view.ArrowRefreshHeader;
+import com.github.jdsjlzx.view.FlagFlyingRefreshFooter;
+import com.github.jdsjlzx.view.FlagFlyingRefreshHeader;
+import com.github.jdsjlzx.view.HArrowRefreshHeader;
 import com.lzx.demo.R;
 import com.lzx.demo.adapter.DataAdapter;
 import com.lzx.demo.bean.ItemModel;
@@ -64,6 +68,11 @@ public class EndlessLinearLayoutActivity extends AppCompatActivity{
 
         mDataAdapter = new DataAdapter(this);
         mLRecyclerViewAdapter = new LRecyclerViewAdapter(mDataAdapter);
+
+        /** 设置头部和尾部刷新布局 */
+        mRecyclerView.setRefreshHeader(new FlagFlyingRefreshHeader(this));
+        mRecyclerView.setLoadMoreFooter(new FlagFlyingRefreshFooter(this));
+
         mRecyclerView.setAdapter(mLRecyclerViewAdapter);
 
         DividerDecoration divider = new DividerDecoration.Builder(this)
@@ -72,18 +81,9 @@ public class EndlessLinearLayoutActivity extends AppCompatActivity{
                 .setColorResource(R.color.split)
                 .build();
 
-        //mRecyclerView.setHasFixedSize(true);
         mRecyclerView.addItemDecoration(divider);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        mRecyclerView.setRefreshProgressStyle(ProgressStyle.LineSpinFadeLoader);
-        mRecyclerView.setArrowImageView(R.drawable.ic_pulltorefresh_arrow);
-        mRecyclerView.setLoadingMoreProgressStyle(ProgressStyle.BallSpinFadeLoader);
-
-        //add a HeaderView
-        final View header = LayoutInflater.from(this).inflate(R.layout.sample_header,(ViewGroup)findViewById(android.R.id.content), false);
-        mLRecyclerViewAdapter.addHeaderView(header);
 
         mRecyclerView.setOnRefreshListener(new OnRefreshListener() {
             @Override
@@ -136,13 +136,6 @@ public class EndlessLinearLayoutActivity extends AppCompatActivity{
 
         });
 
-        //设置头部加载颜色
-        mRecyclerView.setHeaderViewColor(R.color.colorAccent, R.color.dark ,android.R.color.white);
-        //设置底部加载颜色
-        mRecyclerView.setFooterViewColor(R.color.colorAccent, R.color.dark ,android.R.color.white);
-        //设置底部加载文字提示
-        mRecyclerView.setFooterViewHint("拼命加载中","已经全部为你呈现了","网络不给力啊，点击再试一次吧");
-
         mRecyclerView.refresh();
 
         mLRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
@@ -168,9 +161,6 @@ public class EndlessLinearLayoutActivity extends AppCompatActivity{
 
     }
 
-    private void notifyDataSetChanged() {
-        mLRecyclerViewAdapter.notifyDataSetChanged();
-    }
 
     private void addItems(ArrayList<ItemModel> list) {
 
@@ -218,17 +208,6 @@ public class EndlessLinearLayoutActivity extends AppCompatActivity{
                     activity.mRecyclerView.refreshComplete(REQUEST_COUNT);
 
                     break;
-                case -3:
-                    activity.mRecyclerView.refreshComplete(REQUEST_COUNT);
-                    activity.notifyDataSetChanged();
-                    activity.mRecyclerView.setOnNetWorkErrorListener(new OnNetWorkErrorListener() {
-                        @Override
-                        public void reload() {
-                            requestData();
-                        }
-                    });
-
-                    break;
                 default:
                     break;
             }
@@ -240,6 +219,7 @@ public class EndlessLinearLayoutActivity extends AppCompatActivity{
      */
     private void requestData() {
         Log.d(TAG, "requestData");
+        /** 模拟一秒的延迟信息 */
         new Thread() {
 
             @Override
@@ -252,12 +232,7 @@ public class EndlessLinearLayoutActivity extends AppCompatActivity{
                     e.printStackTrace();
                 }
 
-                //模拟一下网络请求失败的情况
-                if(NetworkUtils.isNetAvailable(getApplicationContext())) {
-                    mHandler.sendEmptyMessage(-1);
-                } else {
-                    mHandler.sendEmptyMessage(-3);
-                }
+                mHandler.sendEmptyMessage(-1);
             }
         }.start();
     }

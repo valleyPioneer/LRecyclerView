@@ -21,6 +21,7 @@ import com.github.jdsjlzx.interfaces.OnLoadMoreListener;
 import com.github.jdsjlzx.interfaces.OnNetWorkErrorListener;
 import com.github.jdsjlzx.interfaces.OnRefreshListener;
 import com.github.jdsjlzx.view.ArrowRefreshHeader;
+import com.github.jdsjlzx.view.FlagFlyingRefreshFooter;
 import com.github.jdsjlzx.view.LoadingFooter;
 
 /**
@@ -301,7 +302,6 @@ public class LRecyclerView extends RecyclerView {
                             mRefreshing = true;
                             mFootView.setVisibility(GONE);
                             mRefreshListener.onRefresh();
-
                         }
                     }
                 }
